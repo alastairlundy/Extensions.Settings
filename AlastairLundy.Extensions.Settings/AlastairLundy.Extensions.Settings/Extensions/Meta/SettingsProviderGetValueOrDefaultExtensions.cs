@@ -1,5 +1,3 @@
-﻿using System.Threading.Tasks;
-using AlastairLundy.Extensions.Settings.Stores.Abstractions;
 
 namespace AlastairLundy.Extensions.Settings;
 
@@ -13,7 +11,7 @@ public static class SettingsStoreGetValueOrDefaultExtensions
     /// <param name="defaultValue"></param>
     /// <typeparam name="TValue"></typeparam>
     /// <returns></returns>
-    public static async Task<TValue> GetValueOrDefault<TValue>(this ISettingsStore<TValue> provider, string key,
+    public static async Task<TValue> GetValueOrDefault<TValue>(this IStoreProvider<TValue> provider, string key,
         TValue defaultValue)
     {
         try

@@ -7,12 +7,10 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
+namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
 public interface IStoreProvider<TValue>
 {

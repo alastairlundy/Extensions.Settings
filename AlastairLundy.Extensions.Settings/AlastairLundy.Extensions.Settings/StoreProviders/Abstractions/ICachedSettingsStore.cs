@@ -11,13 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
+namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
 /// <summary>
 /// A settings store interface that uses a Dictionary as a Cache.
 /// </summary>
 /// <typeparam name="TValue">The type of Value stored in the Settings Store.</typeparam>
-public interface ICachedSettingsStore<TValue> : ISettingsStore<TValue>
+public interface ICachedStoreProvider<TValue> : IStoreProvider<TValue>
 {
     /// <summary>
     /// A Dictionary that can be used to store settings values in memory, and act as a cache to reduce the need to directly read from the Store's source each time.

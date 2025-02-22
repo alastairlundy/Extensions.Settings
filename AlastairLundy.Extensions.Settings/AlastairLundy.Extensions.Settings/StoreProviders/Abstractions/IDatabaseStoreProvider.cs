@@ -7,10 +7,12 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
-namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
-
-public interface IFileSettingsStore<TValue> : ISettingsStore<TValue>
+public interface IDatabaseStoreProvider<TValue> : IStoreProvider<TValue>
 {
-    public FileStoreConfiguration FileConfiguration { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbStoreConfiguration DbConfiguration { get; }
 }
