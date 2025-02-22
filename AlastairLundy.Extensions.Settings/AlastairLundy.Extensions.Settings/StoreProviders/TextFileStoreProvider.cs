@@ -14,10 +14,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AlastairLundy.Extensions.Settings.Internal;
+using AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
-using AlastairLundy.Extensions.Settings.Stores.Abstractions;
-
-namespace AlastairLundy.Extensions.Settings.Stores;
+namespace AlastairLundy.Extensions.Settings.StoreProviders;
 
 /// <summary>
 /// 
@@ -27,21 +27,17 @@ public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
 {
     private readonly char _keyValueSeparator;
     
-    public Func<string, TValue> ToTValueConverter { get; }
-    public Func<TValue, string> ToStringConverter { get; }
-
+    public TypeConverter Converter { get; }
+    
     /// <summary>
     /// 
     /// </summary>
     /// <param name="fileConfiguration"></param>
-    /// <param name="toTValueConverter"></param>
-    /// <param name="stringToStringConverter"></param>
+    /// <param name="typeConverter">A type converter that converts the TValue type to strings and vice versa.</param>
     /// <param name="keyValueSeparator"></param>
-    public TextFileSettingsStore(FileStoreConfiguration fileConfiguration, Func<string, TValue> toTValueConverter,
-        Func<TValue, string> stringToStringConverter, char keyValueSeparator = '=')
+    public TextFileStoreProvider(FileStoreConfiguration fileConfiguration, TypeConverter typeConverter, char keyValueSeparator = '=')
     {
-        ToTValueConverter = toTValueConverter;
-        ToStringConverter = stringToStringConverter;
+        Converter = typeConverter;
         
         FileConfiguration = fileConfiguration;
         _keyValueSeparator = keyValueSeparator;
@@ -63,10 +59,18 @@ public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
         string line = lines.First(x => x.Contains(key) && x.Contains(_keyValueSeparator));
         
         string[] parts = line.Split(_keyValueSeparator);
-                
-        TValue value = ToTValueConverter(parts[1]);
 
-        return value;
+        if (Converter.CanConvertFrom(typeof(string)))
+        {
+            // ReSharper disable once NullableWarningSuppressionIsUsed
+            TValue value = (TValue)Converter.ConvertFromString(parts[0])!;
+            
+            return value;
+        }
+        else
+        {
+            throw new ArgumentException(Resources.Exceptions_Conversions_CannotConvertFromString.Replace("{x}", nameof(TValue)));
+        }
     }
 
     /// <summary>
@@ -97,7 +101,7 @@ public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
     public async Task<IEnumerable<KeyValuePair<string, TValue>>> GetSettingsAsync()
     {
 #if NET6_0_OR_GREATER
-                string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
+        string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
 #else
         string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
 #endif
@@ -110,9 +114,17 @@ public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
             {
                 string[] parts = line.Split(_keyValueSeparator);
                 
-                TValue value = ToTValueConverter(parts[1]);
+                if(Converter.CanConvertFrom(typeof(string)) && Converter.CanConvertTo(typeof(TValue)))
+                {
+                    // ReSharper disable once NullableWarningSuppressionIsUsed
+                    TValue value = (TValue)Converter.ConvertFromString(parts[1])!;
                 
-                output.Add(new KeyValuePair<string, TValue>(parts[0], value));
+                    output.Add(new KeyValuePair<string, TValue>(parts[0], value));
+                }
+                else
+                {
+                    throw new ArgumentException(Resources.Exceptions_Conversions_CannotConvertFromString.Replace("{x}", nameof(TValue)));
+                }
             }
         }
         
@@ -140,9 +152,17 @@ public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
 
                 if (parts[0].Equals(key))
                 {
-                    string val = ToStringConverter(value);
+                    if (Converter.CanConvertTo(typeof(TValue)) && Converter.CanConvertFrom(typeof(string)))
+                    {
+                        // ReSharper disable once NullableWarningSuppressionIsUsed
+                        string val = Converter.ConvertToString(parts[1])!;
                     
-                    stringBuilder.Append(val);
+                        stringBuilder.Append(val);
+                    }
+                    else
+                    {
+                        throw new ArgumentException(Resources.Exceptions_Conversions_CannotConvertToString.Replace("{x}", nameof(TValue)));
+                    }
                 }
                 else
                 {
@@ -154,8 +174,13 @@ public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
                 stringBuilder.AppendLine(line);
             }
         }
-        
-        File.WriteAllText(FileConfiguration.FilePath, stringBuilder.ToString());
+       
+
+#if NET6_0_OR_GREATER
+        await File.WriteAllTextAsync(FileConfiguration.FilePath, stringBuilder.ToString());
+#else
+        await FilePolyfill.WriteAllTextAsync(FileConfiguration.FilePath, stringBuilder.ToString());
+#endif
     }
 
     public FileStoreConfiguration FileConfiguration { get; }
