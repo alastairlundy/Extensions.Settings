@@ -36,6 +36,9 @@ public interface ICachedStoreProvider<TValue> : IStoreProvider<TValue>
     /// <remarks>Implementers should set the default value to 1 Hour.</remarks>
     TimeSpan CacheLifetime { get; }
     
+    void SetCacheExpiration(DateTime expiration);
+    void SetCacheLifetime(TimeSpan expiration);
+    
     /// <summary>
     /// Clears the Dictionary and then loads the Dictionary cache with the Settings from the Store's source.
     /// </summary>

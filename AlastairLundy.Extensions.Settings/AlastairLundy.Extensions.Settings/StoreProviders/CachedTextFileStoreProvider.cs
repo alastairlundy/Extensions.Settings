@@ -28,9 +28,43 @@ public class CachedTextFileStoreProvider<TValue> : TextFileStoreProvider<TValue>
     ICachedStoreProvider<TValue>, IFileStoreProvider<TValue>
 {
     private readonly char _keyValueSeparator;
+    
+    /// <summary>
+    /// 
+    /// </summary>
     public Dictionary<string, TValue> Cache { get; protected set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
     public DateTime CacheExpiration { get; protected set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
     public TimeSpan CacheLifetime { get; protected set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="expiration"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    public void SetCacheExpiration(DateTime expiration)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="expiration"></param>
+    public void SetCacheLifetime(TimeSpan expiration)
+    {
+        if (expiration < TimeSpan.FromDays(365.0))
+        {
+            CacheLifetime = expiration;
+        }
+    }
 
     /// <summary>
     /// 
@@ -49,6 +83,7 @@ public class CachedTextFileStoreProvider<TValue> : TextFileStoreProvider<TValue>
         CacheExpiration = DateTime.Now.Add(CacheLifetime);
         _keyValueSeparator = keyValueSeparator;
     }
+    
     
     /// <summary>
     /// 
