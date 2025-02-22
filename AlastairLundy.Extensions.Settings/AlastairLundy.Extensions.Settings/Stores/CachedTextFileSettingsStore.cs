@@ -32,7 +32,7 @@ public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="filePath"></param>
+    /// <param name="fileConfiguration"></param>
     /// <param name="toTValueFunc"></param>
     /// <param name="toStringFunc"></param>
     /// <param name="keyValueSeparator"></param>
