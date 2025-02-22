@@ -40,8 +40,14 @@ The following interfaces exist but are not implemented by default:
 
 These are the standard interfaces within the base package:
 * ``ISettingsStore``
-* ``ICachedSettingsStore`` - An interface to enable creating Cached Setting Stores.
-* ``IFileSettingsStore``
+* ``ICachedSettingsStore`` - An interface to enable creating Cached Store Providers.
+* ``IFileSettingsStore`` - An interface to enable creating File Store Providers.
+
+## How to contribute to the project
+If you'd like to contribute code to the project please open an issue discussing the changes you'd like to make.
+
+If I approve of the changes, please open a pull request and we'll see about getting the changes merged.
+
 
 ## Credits/ Acknowledgements
 
