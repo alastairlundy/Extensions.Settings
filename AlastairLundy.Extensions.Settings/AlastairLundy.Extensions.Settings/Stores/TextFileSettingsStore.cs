@@ -32,18 +32,17 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="filePath"></param>
+    /// <param name="fileConfiguration"></param>
     /// <param name="toTValueConverter"></param>
     /// <param name="stringToStringConverter"></param>
     /// <param name="keyValueSeparator"></param>
-    public TextFileSettingsStore(string filePath, Func<string, TValue> toTValueConverter,
+    public TextFileSettingsStore(FileStoreConfiguration fileConfiguration, Func<string, TValue> toTValueConverter,
         Func<TValue, string> stringToStringConverter, char keyValueSeparator = '=')
     {
         ToTValueConverter = toTValueConverter;
         ToStringConverter = stringToStringConverter;
-        FilePath = filePath;
-        FileName = Path.GetFileName(filePath);
-        FileExtension = Path.GetExtension(filePath);
+        
+        FileConfiguration = fileConfiguration;
         _keyValueSeparator = keyValueSeparator;
     }
     
@@ -52,11 +51,21 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public async Task<TValue>? GetValueAsync(string key)
+    public async Task<TValue> GetValueAsync(string key)
     {
-        IEnumerable<KeyValuePair<string, TValue>> values = await LoadFromFileAsync();
+#if NET6_0_OR_GREATER
+        string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
+#else
+        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
+#endif
         
-        return values.FirstOrDefault(x => x.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)).Value;
+        string line = lines.First(x => x.Contains(key) && x.Contains(_keyValueSeparator));
+        
+        string[] parts = line.Split(_keyValueSeparator);
+                
+        TValue value = ToTValueConverter(parts[1]);
+
+        return value;
     }
 
     /// <summary>
@@ -67,9 +76,9 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     public async Task SetValueAsync(string key, TValue value)
     {
 #if NET6_0_OR_GREATER
-                string[] lines = await File.ReadAllLinesAsync(FilePath);
+                string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
 #else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FilePath);
+        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
 #endif
         
         StringBuilder stringBuilder = new StringBuilder();
@@ -100,7 +109,7 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
             }
         }
         
-        File.WriteAllText(FilePath, stringBuilder.ToString());
+        File.WriteAllText(FileConfiguration.FilePath, stringBuilder.ToString());
     }
 
     /// <summary>
@@ -109,7 +118,7 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     /// <returns></returns>
     public async Task<IEnumerable<string>> GetSettingsKeysAsync()
     {
-        IEnumerable<KeyValuePair<string, TValue>> values = await LoadFromFileAsync();
+        IEnumerable<KeyValuePair<string, TValue>> values = await GetSettingsAsync();
 
         return values.Select(x => x.Key);
     }
@@ -120,15 +129,10 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     /// <returns></returns>
     public async Task<IEnumerable<KeyValuePair<string, TValue>>> GetSettingsAsync()
     {
-        return await LoadFromFileAsync();
-    }
-    
-    private async Task<IEnumerable<KeyValuePair<string, TValue>>> LoadFromFileAsync()
-    {
 #if NET6_0_OR_GREATER
-                string[] lines = await File.ReadAllLinesAsync(FilePath);
+                string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
 #else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FilePath);
+        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
 #endif
 
         List<KeyValuePair<string, TValue>> output = new();
@@ -149,7 +153,5 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     }
 
 
-    public string FilePath { get; }
-    public string FileName { get; }
-    public string FileExtension { get; }
+    public FileStoreConfiguration FileConfiguration { get; }
 }

@@ -10,7 +10,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,16 +22,12 @@ namespace AlastairLundy.Extensions.Settings.Stores;
 /// A text file based settings store with caching.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>, IFileSettingsStore<TValue>
+public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>, ICachedSettingsStore<TValue>, IFileSettingsStore<TValue>
 {
     private readonly char _keyValueSeparator;
     public Dictionary<string, TValue> Cache { get; protected set; }
     public DateTime CacheExpiration { get; protected set; }
     public TimeSpan CacheLifetime { get; protected set; }
-
-    public Func<string, TValue> ToTValueConverter { get; }
-    public Func<TValue, string> ToStringConverter { get; }
-    
 
     /// <summary>
     /// 
@@ -41,15 +36,14 @@ public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>,
     /// <param name="toTValueFunc"></param>
     /// <param name="toStringFunc"></param>
     /// <param name="keyValueSeparator"></param>
-    public CachedTextFileSettingsStore(string filePath, Func<string, TValue> toTValueFunc, Func<TValue, string> toStringFunc, char keyValueSeparator = '=')
+    public CachedTextFileSettingsStore(FileStoreConfiguration fileConfiguration,
+        Func<string, TValue> toTValueFunc,
+        Func<TValue, string> toStringFunc,
+        char keyValueSeparator = '=') : base(fileConfiguration,
+        toTValueFunc,
+        toStringFunc,
+        keyValueSeparator)
     {
-        FilePath = filePath;
-        FileName = Path.GetFileName(filePath);
-        FileExtension = Path.GetExtension(filePath);
-        
-        ToTValueConverter = toTValueFunc;
-        ToStringConverter = toStringFunc;
-        
         Cache = new Dictionary<string, TValue>();
         CacheLifetime = TimeSpan.FromHours(1);
         CacheExpiration = DateTime.Now.Add(CacheLifetime);
@@ -73,9 +67,9 @@ public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>,
         ClearCache();
         
 #if NET6_0_OR_GREATER
-        string[] lines = await File.ReadAllLinesAsync(FilePath);
+        string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
 #else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FilePath);
+        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
 #endif
         
         foreach (string line in lines)
@@ -99,29 +93,12 @@ public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>,
         Cache.Clear();
     }
 
-    private async Task<TValue> LoadFromFileAsync(string key)
-    {
-#if NET6_0_OR_GREATER
-                string[] lines = await File.ReadAllLinesAsync(FilePath);
-#else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FilePath);
-#endif
-                
-        string line = lines.First(x => x.Contains(key));
-
-        string[] parts = line.Split('=');
-                
-        TValue value = ToTValueConverter(parts[1]);
-                
-        return value;
-    }
-
     /// <summary>
     /// 
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public async Task<TValue>? GetValueAsync(string key)
+    public new async Task<TValue> GetValueAsync(string key)
     {
         if (Cache.Count == 0)
         {
@@ -136,18 +113,18 @@ public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>,
             }
             catch
             {
-               return await LoadFromFileAsync(key);
+               return await base.GetValueAsync(key);
             }
         }
         else if (CacheExpiration >= DateTime.Now)
         {
             await UpdateCacheAsync(CacheLifetime);
             
-            return await LoadFromFileAsync(key);
+            return await base.GetValueAsync(key);
         }
         else
         {
-           return await LoadFromFileAsync(key);
+           return await base.GetValueAsync(key);
         }
     }
 
@@ -156,14 +133,14 @@ public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>,
     /// </summary>
     /// <param name="key"></param>
     /// <param name="value"></param>
-    public async Task SetValueAsync(string key, TValue value)
+    public new async Task SetValueAsync(string key, TValue value)
     {
         Cache[key] = value;
         
 #if NET6_0_OR_GREATER
-        string[] lines = await File.ReadAllLinesAsync(FilePath);
+        string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
 #else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FilePath);
+        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
 #endif
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -193,53 +170,7 @@ public class CachedTextFileSettingsStore<TValue> : ICachedSettingsStore<TValue>,
             }
         }
         
-        File.WriteAllText(FilePath, stringBuilder.ToString());
+        File.WriteAllText(FileConfiguration.FilePath, stringBuilder.ToString());
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IEnumerable<string>> GetSettingsKeysAsync()
-    {
-        IEnumerable<KeyValuePair<string, TValue>> pairs = await GetSettingsAsync();
-        
-        return pairs.Select(x => x.Key);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IEnumerable<KeyValuePair<string, TValue>>> GetSettingsAsync()
-    {
-#if NET6_0_OR_GREATER
-        string[] lines = await File.ReadAllLinesAsync(FilePath);
-#else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FilePath);
-#endif
-
-        List<KeyValuePair<string, TValue>> output = new List<KeyValuePair<string, TValue>>();
-        
-        foreach (string line in lines)
-        {
-            if (line.Contains('='))
-            {
-                string[] parts = line.Split('=');
-                
-                string key = parts[0];
-
-                TValue value = ToTValueConverter(parts[1]);
-                
-                output.Add(new KeyValuePair<string, TValue>(key, value));
-            }    
-        }
-                
-        return output;
-    }
-
-    public string FilePath { get; }
-    public string FileName { get; }
-    public string FileExtension { get; }
     
 }

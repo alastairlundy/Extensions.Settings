@@ -11,7 +11,5 @@ namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
 
 public interface IFileSettingsStore<TValue> : ISettingsStore<TValue>
 {
-    public string FilePath { get; }
-    public string FileName { get; }
-    public string FileExtension { get; }
+    public FileStoreConfiguration FileConfiguration { get; }
 }

@@ -30,7 +30,7 @@ public interface ISettingsStore<TValue>
     /// </summary>
     /// <param name="key">The key to get the value of.</param>
     /// <returns>The value associated with the key if found; null otherwise.</returns>
-    Task<TValue>? GetValueAsync(string key);
+    Task<TValue> GetValueAsync(string key);
     
     /// <summary>
     /// 
