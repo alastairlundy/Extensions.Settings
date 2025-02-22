@@ -22,7 +22,8 @@ namespace AlastairLundy.Extensions.Settings.Stores;
 /// A text file based settings store with caching.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>, ICachedSettingsStore<TValue>, IFileSettingsStore<TValue>
+public class CachedTextFileStoreProvider<TValue> : TextFileStoreProvider<TValue>, 
+    ICachedStoreProvider<TValue>, IFileStoreProvider<TValue>
 {
     private readonly char _keyValueSeparator;
     public Dictionary<string, TValue> Cache { get; protected set; }

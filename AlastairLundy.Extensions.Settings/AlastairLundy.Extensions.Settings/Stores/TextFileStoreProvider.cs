@@ -22,7 +22,7 @@ namespace AlastairLundy.Extensions.Settings.Stores;
 /// 
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
+public class TextFileStoreProvider<TValue> : IFileStoreProvider<TValue>
 {
     private readonly char _keyValueSeparator;
     

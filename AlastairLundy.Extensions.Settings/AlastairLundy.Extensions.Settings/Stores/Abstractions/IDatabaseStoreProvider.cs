@@ -9,7 +9,10 @@
 
 namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
 
-public interface IFileSettingsStore<TValue> : ISettingsStore<TValue>
+public interface IDatabaseStoreProvider<TValue> : IStoreProvider<TValue>
 {
-    public FileStoreConfiguration FileConfiguration { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbStoreConfiguration DbConfiguration { get; }
 }
