@@ -43,6 +43,11 @@ These are the standard interfaces within the base package:
 * ``ICachedSettingsStore`` - An interface to enable creating Cached Store Providers.
 * ``IFileSettingsStore`` - An interface to enable creating File Store Providers.
 
+## How to build the code
+To build the library in Debug mode run the code by entering the dotnet command ``dotnet build -c Debug`` or right-click on the project file in your IDE and select "Build Selected Project" with the Debug configuration selected.
+
+To build the library in Release mode run the code by entering the dotnet command ``dotnet build -c Release /p:ContinuousIntegrationBuild=true`` or right-click on the project file in your IDE and select "Build Selected Project" with the release configuration selected.
+
 ## How to contribute to the project
 If you'd like to contribute code to the project please open an issue discussing the changes you'd like to make.
 
