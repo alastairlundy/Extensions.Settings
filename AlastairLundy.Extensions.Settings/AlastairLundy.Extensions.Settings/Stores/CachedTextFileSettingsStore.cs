@@ -102,7 +102,7 @@ public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>
     {
         if (Cache.Count == 0)
         {
-            await UpdateCacheAsync();
+            await UpdateCacheAsync(CacheLifetime);
         }
 
         if (Cache.ContainsKey(key) && CacheExpiration < DateTime.Now)
@@ -137,40 +137,7 @@ public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>
     {
         Cache[key] = value;
         
-#if NET6_0_OR_GREATER
-        string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
-#else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
-#endif
-
-        StringBuilder stringBuilder = new StringBuilder();
-        
-        for (int index = 0; index < lines.Length; index++)
-        {
-            string line = lines[index];
-
-            if (line.Contains(_keyValueSeparator))
-            {
-                string[] parts = line.Split(_keyValueSeparator);
-
-                stringBuilder.Append(parts[0]);
-                stringBuilder.Append(_keyValueSeparator);
-                
-                if (parts[0].Equals(key))
-                {
-                    stringBuilder.Append(ToStringConverter(value));
-                }
-
-                stringBuilder.AppendLine();
-            }
-            else
-            {
-                stringBuilder.Append(line);
-                stringBuilder.AppendLine();
-            }
-        }
-        
-        File.WriteAllText(FileConfiguration.FilePath, stringBuilder.ToString());
+        await WriteToFileAsync(key, value);
     }
     
 }

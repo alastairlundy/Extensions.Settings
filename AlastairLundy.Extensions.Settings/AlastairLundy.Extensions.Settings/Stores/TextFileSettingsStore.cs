@@ -75,41 +75,7 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
     /// <param name="value"></param>
     public async Task SetValueAsync(string key, TValue value)
     {
-#if NET6_0_OR_GREATER
-                string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
-#else
-        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
-#endif
-        
-        StringBuilder stringBuilder = new StringBuilder();
-        
-        foreach (string line in lines)
-        {
-            if (line.Contains(_keyValueSeparator))
-            {
-                string[] parts = line.Split(_keyValueSeparator);
-
-                stringBuilder.Append(parts[0]);
-                stringBuilder.Append(_keyValueSeparator);
-
-                if (parts[0].Equals(key))
-                {
-                    string val = ToStringConverter(value);
-                    
-                    stringBuilder.Append(val);
-                }
-                else
-                {
-                       stringBuilder.Append(parts[1]);
-                }
-            }
-            else
-            {
-                stringBuilder.AppendLine(line);
-            }
-        }
-        
-        File.WriteAllText(FileConfiguration.FilePath, stringBuilder.ToString());
+        await WriteToFileAsync(key, value);
     }
 
     /// <summary>
@@ -152,6 +118,44 @@ public class TextFileSettingsStore<TValue> : IFileSettingsStore<TValue>
         return output;
     }
 
+    protected async Task WriteToFileAsync(string key, TValue value)
+    {
+#if NET6_0_OR_GREATER
+                string[] lines = await File.ReadAllLinesAsync(FileConfiguration.FilePath);
+#else
+        string[] lines = await FilePolyfill.ReadAllLinesAsync(FileConfiguration.FilePath);
+#endif
+        
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        foreach (string line in lines)
+        {
+            if (line.Contains(_keyValueSeparator))
+            {
+                string[] parts = line.Split(_keyValueSeparator);
+
+                stringBuilder.Append(parts[0]);
+                stringBuilder.Append(_keyValueSeparator);
+
+                if (parts[0].Equals(key))
+                {
+                    string val = ToStringConverter(value);
+                    
+                    stringBuilder.Append(val);
+                }
+                else
+                {
+                    stringBuilder.Append(parts[1]);
+                }
+            }
+            else
+            {
+                stringBuilder.AppendLine(line);
+            }
+        }
+        
+        File.WriteAllText(FileConfiguration.FilePath, stringBuilder.ToString());
+    }
 
     public FileStoreConfiguration FileConfiguration { get; }
 }
