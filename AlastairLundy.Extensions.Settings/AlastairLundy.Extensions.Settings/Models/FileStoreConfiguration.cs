@@ -1,19 +1,36 @@
-﻿using System.IO;
+﻿/*
+    AlastairLundy.Extensions.Settings    
+    Copyright (c) Alastair Lundy 2025
+ 
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+using System.IO;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace AlastairLundy.Extensions.Settings;
 
-public class FileStoreConfiguration
+/// <summary>
+/// 
+/// </summary>
+/// <param name="filePath"></param>
+/// <param name="requiresAdminAccess"></param>
+public class FileStoreConfiguration(string filePath, bool requiresAdminAccess)
 {
-    public string FilePath { get; }
-    public string FileExtension { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string FilePath { get; } = filePath;
     
-    public bool RequiresAdminAccess { get; }
-    
+    /// <summary>
+    /// 
+    /// </summary>
+    public string FileExtension { get; } = Path.GetExtension(filePath);
 
-    public FileStoreConfiguration(string filePath, bool requiresAdminAccess)
-    {
-        FilePath = filePath;
-        FileExtension = Path.GetExtension(filePath);
-        RequiresAdminAccess = requiresAdminAccess;
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public bool RequiresAdminAccess { get; } = requiresAdminAccess;
 }
