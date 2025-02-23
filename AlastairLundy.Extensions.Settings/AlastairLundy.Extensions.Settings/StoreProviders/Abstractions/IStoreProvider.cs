@@ -7,24 +7,13 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
+namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
-public interface ISettingsStore<TValue>
+public interface IStoreProvider<TValue>
 {
-    /// <summary>
-    /// A func, provided by the User of the implementing interface, that parses a string into a TValue object.
-    /// </summary>
-    public Func<string, TValue> ToTValueConverter { get; }
-    
-    /// <summary>
-    /// A func, provided by the User of the implementing interface, that converts a TValue object to a string.
-    /// </summary>
-    public Func<TValue, string> ToStringConverter { get; }
-    
     /// <summary>
     /// Reads the value associated with a key from a Settings Store.
     /// </summary>

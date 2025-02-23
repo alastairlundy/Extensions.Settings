@@ -7,9 +7,9 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
+namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
-public interface IDatabaseSettingsStore<TValue> : ISettingsStore<TValue>
+public interface IDatabaseStoreProvider<TValue> : IStoreProvider<TValue>
 {
     /// <summary>
     /// 

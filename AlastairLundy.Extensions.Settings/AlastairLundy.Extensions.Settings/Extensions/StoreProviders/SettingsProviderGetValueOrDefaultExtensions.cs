@@ -1,5 +1,15 @@
-﻿using System.Threading.Tasks;
-using AlastairLundy.Extensions.Settings.Stores.Abstractions;
+﻿/*
+    AlastairLundy.Extensions.Settings    
+    Copyright (c) Alastair Lundy 2025
+ 
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+using System.Threading.Tasks;
+
+using AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
 namespace AlastairLundy.Extensions.Settings;
 
@@ -13,7 +23,7 @@ public static class SettingsStoreGetValueOrDefaultExtensions
     /// <param name="defaultValue"></param>
     /// <typeparam name="TValue"></typeparam>
     /// <returns></returns>
-    public static async Task<TValue> GetValueOrDefault<TValue>(this ISettingsStore<TValue> provider, string key,
+    public static async Task<TValue> GetValueOrDefault<TValue>(this IStoreProvider<TValue> provider, string key,
         TValue defaultValue)
     {
         try

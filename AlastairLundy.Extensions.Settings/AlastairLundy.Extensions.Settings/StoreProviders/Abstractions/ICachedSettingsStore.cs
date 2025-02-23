@@ -11,13 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlastairLundy.Extensions.Settings.Stores.Abstractions;
+namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
 /// <summary>
 /// A settings store interface that uses a Dictionary as a Cache.
 /// </summary>
 /// <typeparam name="TValue">The type of Value stored in the Settings Store.</typeparam>
-public interface ICachedSettingsStore<TValue> : ISettingsStore<TValue>
+public interface ICachedStoreProvider<TValue> : IStoreProvider<TValue>
 {
     /// <summary>
     /// A Dictionary that can be used to store settings values in memory, and act as a cache to reduce the need to directly read from the Store's source each time.
@@ -35,6 +35,9 @@ public interface ICachedSettingsStore<TValue> : ISettingsStore<TValue>
     /// </summary>
     /// <remarks>Implementers should set the default value to 1 Hour.</remarks>
     TimeSpan CacheLifetime { get; }
+    
+    void SetCacheExpiration(DateTime expiration);
+    void SetCacheLifetime(TimeSpan expiration);
     
     /// <summary>
     /// Clears the Dictionary and then loads the Dictionary cache with the Settings from the Store's source.

@@ -9,39 +9,73 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
+using AlastairLundy.Extensions.Settings.Internal;
+using AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 
-using AlastairLundy.Extensions.Settings.Stores.Abstractions;
 // ReSharper disable RedundantExtendsListEntry
+// ReSharper disable NullableWarningSuppressionIsUsed
 
-namespace AlastairLundy.Extensions.Settings.Stores;
+namespace AlastairLundy.Extensions.Settings.StoreProviders;
 
 /// <summary>
 /// A text file based settings store with caching.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>, ICachedSettingsStore<TValue>, IFileSettingsStore<TValue>
+public class CachedTextFileStoreProvider<TValue> : TextFileStoreProvider<TValue>, 
+    ICachedStoreProvider<TValue>, IFileStoreProvider<TValue>
 {
     private readonly char _keyValueSeparator;
+    
+    /// <summary>
+    /// 
+    /// </summary>
     public Dictionary<string, TValue> Cache { get; protected set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
     public DateTime CacheExpiration { get; protected set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
     public TimeSpan CacheLifetime { get; protected set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="expiration"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    public void SetCacheExpiration(DateTime expiration)
+    {
+        throw new NotImplementedException();
+    }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="toTValueFunc"></param>
-    /// <param name="toStringFunc"></param>
+    /// <param name="expiration"></param>
+    public void SetCacheLifetime(TimeSpan expiration)
+    {
+        if (expiration < TimeSpan.FromDays(365.0))
+        {
+            CacheLifetime = expiration;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="fileConfiguration"></param>
+    /// <param name="typeConverter"></param>
     /// <param name="keyValueSeparator"></param>
-    public CachedTextFileSettingsStore(FileStoreConfiguration fileConfiguration,
-        Func<string, TValue> toTValueFunc,
-        Func<TValue, string> toStringFunc,
+    public CachedTextFileStoreProvider(FileStoreConfiguration fileConfiguration,
+        TypeConverter typeConverter,
         char keyValueSeparator = '=') : base(fileConfiguration,
-        toTValueFunc,
-        toStringFunc,
+        typeConverter,
         keyValueSeparator)
     {
         Cache = new Dictionary<string, TValue>();
@@ -49,6 +83,7 @@ public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>
         CacheExpiration = DateTime.Now.Add(CacheLifetime);
         _keyValueSeparator = keyValueSeparator;
     }
+    
     
     /// <summary>
     /// 
@@ -75,10 +110,18 @@ public class CachedTextFileSettingsStore<TValue> : TextFileSettingsStore<TValue>
         foreach (string line in lines)
         {
             string[] parts = line.Split(_keyValueSeparator);
+
+            if (Converter.CanConvertTo(typeof(TValue)) && Converter.CanConvertFrom(typeof(string)))
+            {
+                TValue value = (TValue)Converter.ConvertFromString(parts[1])!;
                 
-            TValue value = ToTValueConverter(parts[1]);
-                
-            Cache[key: parts[0]] = value;
+                Cache[key: parts[0]] = value;
+            }
+            else
+            {
+                throw new ArgumentException(
+                    Resources.Exceptions_Conversions_CannotConvertFromString.Replace("{x}", nameof(TValue)));
+            }
         }
         
         CacheLifetime = expiry;
