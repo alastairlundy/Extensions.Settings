@@ -53,6 +53,15 @@ If you'd like to contribute code to the project please open an issue discussing 
 
 If I approve of the changes, please open a pull request and we'll see about getting the changes merged.
 
+## Roadmap
+This project doesn't aim to provide every possible implementation of Store Providers. 
+
+Store Provider implementations for commonly used Store types are welcome, and future versions will create sub-packages that focus on those store providers such as XML, JSON, and INI files.
+A few Database store provider implementation classes may also be added in the future under their own sub-packages.
+
+Future versions may also add more interfaces or models that assist with working with Stores.
+
+Beyond that, enhancements and improvements, extension methods for Store Providers, and other features are also possibilities for the future.
 
 ## Credits/ Acknowledgements
 
