@@ -1,5 +1,5 @@
 ﻿/*
-    AlastairLundy.Extensions.Settings    
+    AlastairLundy.Extensions.Settings.Abstractions
     Copyright (c) Alastair Lundy 2025
  
     This Source Code Form is subject to the terms of the Mozilla Public
@@ -8,10 +8,10 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
-namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
+namespace AlastairLundy.Extensions.Settings.Abstractions.StoreProviders;
 
 /// <summary>
 /// A settings store interface that uses a Dictionary as a Cache.
@@ -20,10 +20,10 @@ namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
 public interface ICachedStoreProvider<TValue> : IStoreProvider<TValue>
 {
     /// <summary>
-    /// A Dictionary that can be used to store settings values in memory, and act as a cache to reduce the need to directly read from the Store's source each time.
+    /// A memory cache to reduce the need to directly read from the Store's source each time.
     /// </summary>
     /// <remarks>Implementers may wish to implement reading from the Store's source as a fallback, in case the cache does not contain a Settings key asked for.</remarks>
-    public Dictionary<string, TValue> Cache { get; }
+    public IMemoryCache Cache { get; }
     
     /// <summary>
     /// The DateTime representing when the Cache will expire, and need clearing and reloading.

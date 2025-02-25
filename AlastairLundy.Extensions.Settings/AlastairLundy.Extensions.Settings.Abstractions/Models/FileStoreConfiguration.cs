@@ -7,23 +7,31 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+using System.IO;
+
 // ReSharper disable ClassNeverInstantiated.Global
-namespace AlastairLundy.Extensions.Settings;
+
+namespace AlastairLundy.Extensions.Settings.Abstractions;
 
 /// <summary>
 /// 
 /// </summary>
-/// <param name="connectionString"></param>
-/// <param name="tableName"></param>
-public class DbStoreConfiguration(string connectionString, string? tableName = null)
+/// <param name="filePath"></param>
+/// <param name="requiresAdminAccess"></param>
+public class FileStoreConfiguration(string filePath, bool requiresAdminAccess)
 {
     /// <summary>
     /// 
     /// </summary>
-    public string ConnectionString { get; protected set; } = connectionString;
+    public string FilePath { get; } = filePath;
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public string FileExtension { get; } = Path.GetExtension(filePath);
 
     /// <summary>
     /// 
     /// </summary>
-    public string? TableName { get; protected set; } = tableName ?? string.Empty;
+    public bool RequiresAdminAccess { get; } = requiresAdminAccess;
 }

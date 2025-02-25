@@ -9,11 +9,11 @@
 
 using System.Threading.Tasks;
 
-using AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
+using AlastairLundy.Extensions.Settings.Abstractions.StoreProviders;
 
-namespace AlastairLundy.Extensions.Settings;
+namespace AlastairLundy.Extensions.Settings.Abstractions.Extensions;
 
-public static class SettingsStoreGetValueOrDefaultExtensions
+public static class StoreProviderGetValueOrDefaultExtensions
 {
     /// <summary>
     /// 

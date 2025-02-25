@@ -9,7 +9,7 @@
 
 using System.ComponentModel;
 
-namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
+namespace AlastairLundy.Extensions.Settings.Abstractions.StoreProviders;
 
 public interface IFileStoreProvider<TValue> : IStoreProvider<TValue>
 {
