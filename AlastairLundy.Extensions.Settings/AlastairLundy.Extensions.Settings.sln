@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlastairLundy.Extensions.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlastairLundy.Extensions.Settings", "AlastairLundy.Extensions.Settings\AlastairLundy.Extensions.Settings.csproj", "{797A7810-4233-4091-80FD-294B336AC93A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlastairLundy.Extensions.Settings.Abstractions", "AlastairLundy.Extensions.Settings.Abstractions\AlastairLundy.Extensions.Settings.Abstractions.csproj", "{13D9537C-CA16-4864-871F-D38C2F0966F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{797A7810-4233-4091-80FD-294B336AC93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{797A7810-4233-4091-80FD-294B336AC93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{797A7810-4233-4091-80FD-294B336AC93A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13D9537C-CA16-4864-871F-D38C2F0966F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13D9537C-CA16-4864-871F-D38C2F0966F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13D9537C-CA16-4864-871F-D38C2F0966F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13D9537C-CA16-4864-871F-D38C2F0966F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

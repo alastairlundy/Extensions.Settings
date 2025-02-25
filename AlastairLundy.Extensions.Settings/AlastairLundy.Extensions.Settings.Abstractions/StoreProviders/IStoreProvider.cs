@@ -10,7 +10,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
+namespace AlastairLundy.Extensions.Settings.Abstractions.StoreProviders;
 
 public interface IStoreProvider<TValue>
 {
