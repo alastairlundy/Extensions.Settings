@@ -14,6 +14,7 @@ using System.IO;
 using System.Threading.Tasks;
 using AlastairLundy.Extensions.Settings.Internal;
 using AlastairLundy.Extensions.Settings.StoreProviders.Abstractions;
+using Microsoft.Extensions.Caching.Memory;
 
 // ReSharper disable RedundantExtendsListEntry
 // ReSharper disable NullableWarningSuppressionIsUsed
@@ -32,7 +33,7 @@ public class CachedTextFileStoreProvider<TValue> : TextFileStoreProvider<TValue>
     /// <summary>
     /// 
     /// </summary>
-    public Dictionary<string, TValue> Cache { get; protected set; }
+    public IMemoryCache Cache { get; protected set; }
     
     /// <summary>
     /// 
@@ -69,17 +70,30 @@ public class CachedTextFileStoreProvider<TValue> : TextFileStoreProvider<TValue>
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="cache"></param>
     /// <param name="fileConfiguration"></param>
     /// <param name="typeConverter"></param>
     /// <param name="keyValueSeparator"></param>
+    public CachedTextFileStoreProvider(IMemoryCache cache,
+        FileStoreConfiguration fileConfiguration,
+        TypeConverter typeConverter,
+        char keyValueSeparator = '=') : base(fileConfiguration,
+        typeConverter,
+        keyValueSeparator)
+    {
+        Cache = cache;
+        CacheLifetime = TimeSpan.FromHours(1);
+        CacheExpiration = DateTime.Now.Add(CacheLifetime);
+        _keyValueSeparator = keyValueSeparator;
+    }
+    
     public CachedTextFileStoreProvider(FileStoreConfiguration fileConfiguration,
         TypeConverter typeConverter,
         char keyValueSeparator = '=') : base(fileConfiguration,
         typeConverter,
         keyValueSeparator)
     {
-        Cache = new Dictionary<string, TValue>();
-        CacheLifetime = TimeSpan.FromHours(1);
+            CacheLifetime = TimeSpan.FromHours(1);
         CacheExpiration = DateTime.Now.Add(CacheLifetime);
         _keyValueSeparator = keyValueSeparator;
     }
